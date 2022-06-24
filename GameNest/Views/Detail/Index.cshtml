@@ -1,0 +1,140 @@
+﻿@model GameNest.ViewModels.DetailViewModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<br />
+<div class="img-thumbnail d-flex flex-row bg-dark" style="height:200px;min-width:100%;max-width:fit-content">
+    <img src="@Model.game.ImageURL" alt="" class="img-fluid flex-column" style="height:100%"/>
+        <div class="d-flex flex-column justify-content-around">
+                <div class="d-flex flex-column justify-content-start">
+                <div class="badge text-wrap" style="width: inherit;color:white">
+                    <h3>@Model.game.Name</h3>
+                </div>
+                <div class="badge text-wrap" style="width: inherit;color:white;text-align:start">
+                    <p class="h10">
+                        @Model.game.Description
+                    </p>
+                </div>
+                </div>
+                <div class="d-flex flex-row justify-content-evenly" style="width: inherit; color:transparent">
+                    <div class="badge bg-success text-wrap">
+                        A$@Model.game.Price
+                    </div>
+                     <div class="badge text-wrap">
+                        Overall Ratings: @Model.game.Score
+                    </div>
+                    <div class="btn badge" id="wishlist" onclick="ToggleWishList();" style="background-color:grey">
+                        <svg id="heart" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart-fill" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>
+                        </svg>
+                        Wishlist it
+                    </div>
+                </div>
+        </div>
+</div>
+
+<div class="d-flex flex-column bg-light rounded shadow-sm p-4 mb-4" style="margin-top:50px">
+    <div class="d-flex flex-row justify-content-between">
+        <h5 class="mb-1">All Ratings and Reviews</h5>
+        <div class="d-flex flex-row">
+            <a asp-controller="Detail" 
+                asp-action="Index" 
+                asp-route-id="@Model.game.Id" asp-route-sortBy="top" class="btn btn-outline-primary btn-sm float-end">Top Rated</a>
+            <div style="width:10px"></div>
+            <a asp-controller="Detail" 
+                asp-action="Index" 
+                asp-route-id="@Model.game.Id" asp-route-sortBy="time" class="btn btn-outline-primary btn-sm float-end">Most Recent</a>
+        </div>
+    </div>
+    @foreach(var review in Model.reviews)
+    {
+        <div class="d-flex flex-column" style="margin-top:50px">
+            <div class="d-flex flex-row justify-content-between">
+                <h6><a class="text-black" href="#">@review.UserName</a></h6>
+                <h6>Rating: @review.Score</h6>
+            </div>
+            <p class="text-gray align-self-end">@review.CreateDateUTC.ToShortDateString()</p>
+            <div class="reviews-members-body">
+                <p>@review.Message</p>
+            </div>
+        </div>
+    }
+</div>
+
+@if(Model.user!=null&&!Model.reviews.Any(n => n.UserId == Model.user.Id))
+{
+    <div class="bg-light rounded shadow-sm p-4 mb-5">
+    <h5 class="mb-4">Write Review</h5>
+    <p class="mb-2">Rate the Game</p>
+    <form id="submitReview" method="post">
+        <div class="form-group">
+            <label for="scoreRange" class="form-label">Score</label>
+            <input type="range" name="score" value="5" class="form-control-range" min="0" max="10" step="1" id="score" onchange="showSelectedScore()">
+            <span id="scoreValue">5</span>
+            <br/>
+            <label>Your Review</label>
+            <textarea class="form-control" name="review"></textarea>
+            <input type="hidden" id="review" name="review" />
+            <input type="hidden" id="gameId" name="gameId" value=@Model.game.Id />
+            @if (Model.user != null)
+            {
+                <input type="hidden" id="userName" name="userName" value=@Model.user.UserName />
+                <input type="hidden" id="userId" name="userId" value=@Model.user.Id />
+            }
+        </div>
+        <br />
+        <div class="form-group">
+            <button class="btn btn-primary btn-sm" type="submit"> Post Review </button>
+         </div>
+    </form>
+    </div>
+}
+
+<script>
+    window.onload = function onLoad(){
+        if(@Json.Serialize(Model.wishlisted)){
+            document.getElementById("heart").setAttribute("fill","red");
+        }
+    }
+
+    function showSelectedScore(){
+        document.getElementById("scoreValue").innerText = document.getElementById("score").value
+    }
+
+    function ToggleWishList(){
+        var loggedIn = '@(Model.user == null ? "isNull" : "notNull")';
+        if(loggedIn=="isNull"){
+           window.location.href = "/Identity/Account/Login";
+        }else{
+           $.ajax({
+               url: "/Detail/ToggleWishlisted",
+               type: 'POST',
+               data: {wishlisted: @Json.Serialize(Model.wishlisted), userId: '@(Model.user == null ? "" : Model.user.Id)', gameId: '@Model.game.Id'},
+               success: function(){
+                   window.location.reload();
+               },
+               error: function(){
+                    alert("Failed to submit review.")
+               }
+           });
+        }
+    }
+   
+
+   $('#submitReview').submit(function(){
+    $.ajax({
+        url: "/Detail/SubmitReview",
+        type: 'POST',
+        data : $('#submitReview').serialize(),
+        success: function(){
+            window.location.reload();
+        },
+        error: function(){
+            alert("Failed to submit review.")
+        }
+        });
+        return false;
+    });
+</script>
