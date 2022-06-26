@@ -33,6 +33,7 @@ namespace GameNest.Models
             var query = from review in _context.Reviews
                         join user in _context.Users
                         on review.UserId equals user.Id
+                        where review.GameId == id
                         select new ReviewQueryResult()
                         {
                             review = review,
