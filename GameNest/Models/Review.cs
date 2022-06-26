@@ -21,7 +21,6 @@ namespace GameNest.Models
         [ForeignKey("UserId")]
         public IdentityUser User { get; set; }
 
-        public string UserName { get; set; }
 
         public string GameId { get; set; }
 

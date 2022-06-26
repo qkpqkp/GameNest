@@ -37,14 +37,13 @@ namespace GameNest.Controllers
 
         [Authorize]
         [HttpPost]
-        public IActionResult SubmitReview(string score, string review, string gameId, string userName, string userId)
+        public IActionResult SubmitReview(string score, string review, string gameId, string userId)
         {
             Review newReview = new Review();
             newReview.Id = Guid.NewGuid().ToString();
             newReview.Score = int.Parse(score);
             newReview.Message = review;
             newReview.GameId = gameId;
-            newReview.UserName = userName;
             newReview.UserId = userId;
             newReview.CreateDateUTC = DateTime.Now;
             if (_reviewRepository.AddReview(newReview))

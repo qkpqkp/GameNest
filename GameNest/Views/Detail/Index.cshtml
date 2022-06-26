@@ -52,18 +52,17 @@
     {
         <div class="d-flex flex-column" style="margin-top:50px">
             <div class="d-flex flex-row justify-content-between">
-                <h6><a class="text-black" href="#">@review.UserName</a></h6>
-                <h6>Rating: @review.Score</h6>
+                <h6><a class="text-black" href="#">@review.userName</a></h6>
+                <h6>Rating: @review.review.Score</h6>
             </div>
-            <p class="text-gray align-self-end">@review.CreateDateUTC.ToShortDateString()</p>
+            <p class="text-gray align-self-end">@review.review.CreateDateUTC.ToShortDateString()</p>
             <div class="reviews-members-body">
-                <p>@review.Message</p>
+                <p>@review.review.Message</p>
             </div>
         </div>
     }
 </div>
-
-@if(Model.user!=null&&!Model.reviews.Any(n => n.UserId == Model.user.Id))
+@if(Model.user!=null&&!Model.reviews.Any(n => n.review.UserId == Model.user.Id))
 {
     <div class="bg-light rounded shadow-sm p-4 mb-5">
     <h5 class="mb-4">Write Review</h5>
@@ -80,7 +79,6 @@
             <input type="hidden" id="gameId" name="gameId" value=@Model.game.Id />
             @if (Model.user != null)
             {
-                <input type="hidden" id="userName" name="userName" value=@Model.user.UserName />
                 <input type="hidden" id="userId" name="userId" value=@Model.user.Id />
             }
         </div>

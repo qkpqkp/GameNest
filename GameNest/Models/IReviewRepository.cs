@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace GameNest.Models
 {
@@ -6,7 +8,7 @@ namespace GameNest.Models
     {
         IEnumerable<Review> GetAllReviews();
 
-        IList<Review> GetReviewsByGameId(string id,string? sortBy);
+        IEnumerable<ReviewQueryResult> GetReviewsByGameId(string id, string? sortBy);
 
         bool AddReview(Review review);
 
