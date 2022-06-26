@@ -19,11 +19,14 @@ namespace GameNest.Models
 
         public IList<Wishlist> GetWishlistsByUserId(string userId)
         {
-            return _context.Wishlist.Where(n => n.userId == userId).ToList();
+            return (from wishlist in _context.Wishlist
+                   where wishlist.userId == userId
+                   select wishlist).ToList();
+            //return _context.Wishlist.Where(n => n.userId == userId).ToList();
         }
 
         public bool Wishlisted(string userId, string gameId)
-        {
+        {     
             return _context.Wishlist.Any(n => n.userId == userId && n.gameId == gameId);
         }
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 namespace GameNest.Models
 {
@@ -22,7 +23,12 @@ namespace GameNest.Models
 
         public IEnumerable<Game> GetTopGames(int count)
         {
-            return _context.Games.OrderByDescending(n => n.Score).Take(count);
+            //Both Works!
+            //return _context.Games.OrderByDescending(n => n.Score).Take(count);
+            var query = from game in _context.Games
+                        orderby game.Score descending select game;
+            return query.Take(count);
+                        
         }
     }
 }

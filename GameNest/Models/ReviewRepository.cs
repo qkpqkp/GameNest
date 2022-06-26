@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace GameNest.Models
@@ -6,7 +7,7 @@ namespace GameNest.Models
     public class ReviewRepository : IReviewRepository
     {
         private AppDbContext _context;
-
+        
         public ReviewRepository(AppDbContext appDbContext)
         {
             _context = appDbContext;
@@ -27,18 +28,26 @@ namespace GameNest.Models
             return _context.Reviews;
         }
 
-        public IList<Review> GetReviewsByGameId(string id, string? sortBy)
+        public IEnumerable<ReviewQueryResult> GetReviewsByGameId(string id, string? sortBy)
         {
-            IEnumerable<Review> reviews = _context.Reviews.Where(n => n.GameId == id);
+            var query = from review in _context.Reviews
+                        join user in _context.Users
+                        on review.UserId equals user.Id
+                        select new ReviewQueryResult()
+                        {
+                            review = review,
+                            userName = user.UserName,
+                        };
+           
             if (sortBy == null) { 
-                return reviews.ToList();
+                return query;
             }else if(sortBy == "top")
             {
-                return reviews.OrderByDescending(n => n.Score).ToList();
+                return query.OrderByDescending(n => n.review.Score);
             }
             else
             {
-                return reviews.OrderByDescending(n => n.CreateDateUTC).ToList();
+                return query.OrderByDescending(n => n.review.CreateDateUTC);
             }
         }
 
